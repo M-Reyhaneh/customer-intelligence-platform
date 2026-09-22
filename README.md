@@ -1,2 +1,13 @@
 # customer-intelligence-platform
-End-to-end customer intelligence and retention analytics platform for e-commerce, combining SQL, Python, KPI analysis, RFM segmentation, cohort retention, and business recommendations.
+
+E-commerce analytics project built on the Olist dataset using Python, Pandas,
+SQLite and SQL.
+
+Current scope includes:
+- raw data loading and quality checks
+- order-level analytical dataset construction
+- KPI analysis
+- revenue and category analysis
+- customer purchase behavior
+- repeat-customer analysis
+- delivery performance analysis
