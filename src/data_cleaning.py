@@ -3,8 +3,9 @@ Data loading and cleaning utilities for the Customer Intelligence Platform.
 """
 
 from pathlib import Path
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 
 def get_project_paths():
@@ -42,10 +43,9 @@ def missing_summary(df):
     """
     Return missing value count and percentage for a dataframe.
     """
-    summary = pd.DataFrame({
-        "missing_count": df.isna().sum(),
-        "missing_percent": df.isna().mean() * 100
-    })
+    summary = pd.DataFrame(
+        {"missing_count": df.isna().sum(), "missing_percent": df.isna().mean() * 100}
+    )
 
     return summary.sort_values("missing_percent", ascending=False)
 
@@ -77,12 +77,14 @@ def duplicate_summary(tables):
     summary = []
 
     for name, df in tables.items():
-        summary.append({
-            "table": name,
-            "rows": df.shape[0],
-            "duplicate_rows": df.duplicated().sum(),
-            "duplicate_percent": round(df.duplicated().mean() * 100, 3),
-        })
+        summary.append(
+            {
+                "table": name,
+                "rows": df.shape[0],
+                "duplicate_rows": df.duplicated().sum(),
+                "duplicate_percent": round(df.duplicated().mean() * 100, 3),
+            }
+        )
 
     return pd.DataFrame(summary)
 
@@ -137,8 +139,7 @@ def build_item_order_aggregation(items, products):
     )
 
     item_order_agg = (
-        items_enriched
-        .groupby("order_id")
+        items_enriched.groupby("order_id")
         .agg(
             product_revenue=("price", "sum"),
             shipping_revenue=("freight_value", "sum"),
@@ -154,8 +155,7 @@ def build_item_order_aggregation(items, products):
     )
 
     primary_categories = (
-        items_enriched
-        .groupby("order_id")
+        items_enriched.groupby("order_id")
         .apply(get_primary_category)
         .reset_index(name="primary_product_category")
     )
@@ -170,10 +170,9 @@ def build_item_order_aggregation(items, products):
         item_order_agg["product_revenue"] + item_order_agg["shipping_revenue"]
     )
 
-    item_order_agg["freight_ratio"] = (
-        item_order_agg["shipping_revenue"]
-        / item_order_agg["product_revenue"].replace(0, np.nan)
-    )
+    item_order_agg["freight_ratio"] = item_order_agg[
+        "shipping_revenue"
+    ] / item_order_agg["product_revenue"].replace(0, np.nan)
 
     return item_order_agg
 
@@ -199,8 +198,7 @@ def build_payment_order_aggregation(payments):
     Aggregate payment-level data to order level.
     """
     payment_order_agg = (
-        payments
-        .groupby("order_id")
+        payments.groupby("order_id")
         .agg(
             total_payment_value=("payment_value", "sum"),
             payment_installments=("payment_installments", "max"),
@@ -211,8 +209,7 @@ def build_payment_order_aggregation(payments):
     )
 
     main_payment_type = (
-        payments
-        .groupby("order_id")
+        payments.groupby("order_id")
         .apply(get_main_payment_type)
         .reset_index(name="main_payment_type")
     )
@@ -236,10 +233,8 @@ def build_order_level_dataset(orders, customers, item_order_agg, payment_order_a
         how="left",
     )
 
-    order_level = (
-        order_base
-        .merge(item_order_agg, on="order_id", how="left")
-        .merge(payment_order_agg, on="order_id", how="left")
+    order_level = order_base.merge(item_order_agg, on="order_id", how="left").merge(
+        payment_order_agg, on="order_id", how="left"
     )
 
     return order_level
@@ -252,10 +247,14 @@ def add_order_time_features(order_level):
     order_level = order_level.copy()
 
     order_level["order_date"] = order_level["order_purchase_timestamp"].dt.date
-    order_level["order_month"] = order_level["order_purchase_timestamp"].dt.to_period("M").astype(str)
+    order_level["order_month"] = (
+        order_level["order_purchase_timestamp"].dt.to_period("M").astype(str)
+    )
     order_level["order_year"] = order_level["order_purchase_timestamp"].dt.year
     order_level["order_quarter"] = order_level["order_purchase_timestamp"].dt.quarter
-    order_level["order_day_of_week"] = order_level["order_purchase_timestamp"].dt.day_name()
+    order_level["order_day_of_week"] = order_level[
+        "order_purchase_timestamp"
+    ].dt.day_name()
 
     order_level["delivery_days"] = (
         order_level["order_delivered_customer_date"]

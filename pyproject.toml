@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "customer-intelligence-platform"
+version = "0.1.0"
+description = "E-commerce decision intelligence and analytics platform built on the Olist dataset."
+requires-python = ">=3.14"
+dependencies = [
+    "numpy>=2.4",
+    "pandas>=3.0",
+    "matplotlib>=3.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9",
+    "ruff>=0.6",
+    "jupyter>=1.1",
+]
+
+[tool.setuptools]
+py-modules = ["data_cleaning"]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+extend-exclude = ["notebooks"]
