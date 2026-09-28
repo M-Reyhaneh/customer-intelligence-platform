@@ -11,6 +11,8 @@ dependencies = [
     "numpy>=2.4",
     "pandas>=3.0",
     "matplotlib>=3.10",
+    "psycopg[binary]>=3.2",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
